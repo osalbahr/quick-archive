@@ -7,6 +7,7 @@
 #define MAGIC_CODE_SIZE 14
 #define ARGC_CREATE 3
 #define ARGC_INSERT 4
+#define ARGC_LIST 3
 #define MAJOR_VERSION 0
 #define MINOR_VERSION 1
 #define FILENAME_SIZE 128
@@ -66,7 +67,7 @@ void insert(int argc, char *argv[])
     fscanf(archiveFile, "%" MAGIC_CODE "-%d.%d\n",
         &archiveMetadata.majorVersion,
         &archiveMetadata.minorVersion);
-    
+
     fread(&archiveMetadata.fileCount, sizeof(archiveMetadata.fileCount), 1, archiveFile);
     int newFileCount = archiveMetadata.fileCount + 1;
 
@@ -115,12 +116,38 @@ void insert(int argc, char *argv[])
     fclose(newArchiveFile);
 }
 
+void list(int argc, char *argv[])
+{
+    FILE *archiveFile = fopen(argv[2], "rb");
+    if (archiveFile == NULL) {
+        printf("Cannot open archive '%s'\n", argv[2]);
+        exit(1);
+    }
+
+    ArchiveMetadata archiveMetadata;
+    strcpy(archiveMetadata.magicCode, MAGIC_CODE);
+    fscanf(archiveFile, "%" MAGIC_CODE "-%d.%d\n",
+        &archiveMetadata.majorVersion,
+        &archiveMetadata.minorVersion);
+
+    fread(&archiveMetadata.fileCount, sizeof(archiveMetadata.fileCount), 1, archiveFile);
+
+    FileMetadata *filesMetadata = (FileMetadata *)malloc(archiveMetadata.fileCount * sizeof(FileMetadata));
+    fread(filesMetadata, sizeof(FileMetadata), archiveMetadata.fileCount, archiveFile);
+
+    for (int i = 0; i < archiveMetadata.fileCount; i++) {
+        printf("%s\n",filesMetadata[i].filename);
+    }
+}
+
 int main(int argc, char *argv[])
 {
     if (argc == ARGC_CREATE && strcmp(argv[1], "-c") == 0) {
         create(argv[2]);
     } else if (argc == ARGC_INSERT && strcmp(argv[1], "-i") == 0) {
         insert(argc, argv);
+    } else if (argc == ARGC_LIST && strcmp(argv[1], "-l") == 0){
+        list(argc, argv);
     } else {
         printf("Usage: %s -c <filename>.arc\n", argv[0]);
         printf("Usage: %s -i <filename>.arc <new_filename>\n", argv[0]);
