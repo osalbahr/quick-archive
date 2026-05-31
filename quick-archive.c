@@ -39,9 +39,7 @@ void create(char *filename)
         archiveMetadata.majorVersion,
         archiveMetadata.minorVersion);
 
-    char *remainingBytes = ((char *)&archiveMetadata) + MAGIC_CODE_SIZE;
-    fwrite(remainingBytes, sizeof(ArchiveMetadata) - MAGIC_CODE_SIZE, 1, archiveFile);
-    fclose(archiveFile);
+    fwrite(&archiveMetadata.fileCount, sizeof(unsigned int), 1, archiveFile);
 }
 
 int main(int argc, char *argv[])
