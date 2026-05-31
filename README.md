@@ -4,7 +4,7 @@ Archive tool focused on speed
 ## Compilation
 
 ```console
-% gcc quick-archive.c -o quick-archive
+$ gcc quick-archive.c -o quick-archive
 ```
 
 ## Usage
