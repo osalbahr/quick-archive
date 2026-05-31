@@ -2,13 +2,14 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define MAGIC_CODE_SIZE 15
 #define ARC_CREATE 3
 #define MAJOR_VERSION 0
 #define MINOR_VERSION 1
 
 typedef struct ArchiveMetadata {
-    // %QUICK-ARCHIVE-major.minor
-    char magic[16];
+    // %QUICK-ARCHIVE
+    char magicCode[MAGIC_CODE_SIZE];
     unsigned int majorVersion;
     unsigned int minorVersion;
     unsigned int fileCount;
@@ -28,12 +29,18 @@ void create(char *filename)
     }
 
     ArchiveMetadata archiveMetadata;
-    strcpy(archiveMetadata.magic, "%QUICK-ARCHIVE-");
+    strcpy(archiveMetadata.magicCode, "%QUICK-ARCHIVE");
     archiveMetadata.majorVersion = MAJOR_VERSION;
     archiveMetadata.minorVersion = MINOR_VERSION;
     archiveMetadata.fileCount = 0;
 
-    fwrite(&archiveMetadata, sizeof(ArchiveMetadata), 1, archiveFile);
+    fprintf(archiveFile, "%s-%d.%d\n",
+        archiveMetadata.magicCode,
+        archiveMetadata.majorVersion,
+        archiveMetadata.minorVersion);
+
+    char *remainingBytes = ((char *)&archiveMetadata) + MAGIC_CODE_SIZE;
+    fwrite(remainingBytes, sizeof(ArchiveMetadata) - MAGIC_CODE_SIZE, 1, archiveFile);
     fclose(archiveFile);
 }
 
