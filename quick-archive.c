@@ -8,6 +8,7 @@
 #define ARGC_CREATE 3
 #define ARGC_INSERT 4
 #define ARGC_LIST 3
+#define ARGC_HELP 2
 #define MAJOR_VERSION 0
 #define MINOR_VERSION 1
 #define FILENAME_SIZE 128
@@ -140,17 +141,39 @@ void list(int argc, char *argv[])
     }
 }
 
-int main(int argc, char *argv[])
+void help(char *programName)
 {
+    printf("Quick Archive Tool\n\n");
+
+    printf("Usage:\n");
+
+    printf("  %s -c <archive.arc>\n", programName);
+    printf("      Create archive\n\n");
+
+    printf("  %s -i <archive.arc> <file>\n", programName);
+    printf("      Insert file into archive\n\n");
+
+    printf("  %s -l <archive.arc>\n", programName);
+    printf("      List files inside archive\n\n");
+
+    printf("  %s -h\n", programName);
+    printf("      Show help\n");
+}
+
+int main(int argc, char *argv[])
+
+{
+
     if (argc == ARGC_CREATE && strcmp(argv[1], "-c") == 0) {
         create(argv[2]);
     } else if (argc == ARGC_INSERT && strcmp(argv[1], "-i") == 0) {
         insert(argc, argv);
-    } else if (argc == ARGC_LIST && strcmp(argv[1], "-l") == 0){
-        list(argc, argv);
+    } else if (argc == ARGC_LIST && strcmp(argv[1], "-l") == 0) {
+        list(argc,argv);
+    } else if (argc == ARGC_HELP && strcmp(argv[1], "-h") == 0) {
+        help(argv[0]);
     } else {
-        printf("Usage: %s -c <filename>.arc\n", argv[0]);
-        printf("Usage: %s -i <filename>.arc <new_filename>\n", argv[0]);
+        help(argv[0]);
         exit(1);
     }
 }
