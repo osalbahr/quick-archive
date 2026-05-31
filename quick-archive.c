@@ -9,6 +9,7 @@
 #define ARGC_INSERT 4
 #define MAJOR_VERSION 0
 #define MINOR_VERSION 1
+#define FILENAME_SIZE 128
 
 typedef struct ArchiveMetadata {
     // %QUICKARCHIVE
@@ -19,7 +20,7 @@ typedef struct ArchiveMetadata {
 } ArchiveMetadata;
 
 typedef struct FileMetadata {
-    char filename[128];
+    char filename[FILENAME_SIZE];
     unsigned int fileSize;
 } FileMetadata;
 
@@ -88,10 +89,14 @@ void insert(int argc, char *argv[])
         exit(1);
     }
 
+    for (int i = 0; i < FILENAME_SIZE; i++) {
+        newFileMetadata.filename[i] = '\0';
+    }
+    strcpy(newFileMetadata.filename, argv[3]);
+
     struct stat fileInfo;
     fstat(fileno(newFile), &fileInfo);
 
-    strcpy(newFileMetadata.filename, argv[3]);
     newFileMetadata.fileSize = fileInfo.st_size;
 
     filesMetadata[newFileCount - 1] = newFileMetadata;
@@ -99,11 +104,14 @@ void insert(int argc, char *argv[])
     fread(filesData[newFileCount - 1], fileInfo.st_size, 1, newFile);
 
     FILE *newArchiveFile = fopen(argv[2], "wb");
+    archiveMetadata.fileCount = newFileCount;
     fprintArchiveMetadata(newArchiveFile, &archiveMetadata);
     fwrite(filesMetadata, sizeof(FileMetadata), newFileCount, newArchiveFile);
+
     for (int i = 0; i < newFileCount; i++) {
         fwrite(filesData[i], filesMetadata[i].fileSize, 1, newArchiveFile);
     }
+
     fclose(newArchiveFile);
 }
 
