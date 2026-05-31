@@ -55,7 +55,7 @@ dkms.conf
 *.dwo
 
 # Archive file
-*.qar
+*.arc
 
 # Executable
 quick-Archive
